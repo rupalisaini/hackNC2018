@@ -11,7 +11,9 @@ export class Player {
     game: Game;
     bio: string = "";
     status: Status;
-    static bios: string[] = ["bio1", "bio2", "bio3", "bio4"];
+    static bios: string[] = [
+        "You're a humble factory worker with ten loving children who are also factory workers. Your greatest defining feature is the giant wart on your nose.",
+        "bio2", "bio3", "bio4"];
 
 
     constructor(b: string, id: string){

@@ -1,12 +1,20 @@
 import {Player} from './player';
+import {Round} from './round';
 
 export class Game {
     
     banned: string[] = [];
     players: Player[] = [];
     exitConfirm: boolean = false;
+    state: Game.State = Game.State.SETUP;
+    round: Round = null;
 
     constructor(){
+    }
+
+    startRound() {
+        this.state = Game.State.PLAYING;
+        this.round = new Round();
     }
 
     banWord(a: string) {
@@ -28,6 +36,13 @@ export class Game {
 
     addPlayer(b: Player){
         this.players.push(b);
+    }
+}
+
+export namespace Game {
+    export enum State {
+        SETUP,
+        PLAYING
     }
 }
 

@@ -70,21 +70,21 @@ function handleCommand(input, message, game) {
             break;
         case 'exit':
             if (game.exitConfirm) {
-                games["delete"](channel.id);
-                channel.send('Game exited.');
+                games["delete"](message.channel.id);
+                message.channel.send('Game exited.');
             }
             else {
                 game.exitConfirm = true;
-                channel.send("Sure you want to exit the game? Type `" + prefix + " exit` again to confirm or `" + prefix + " cancel` to cancel.");
+                message.channel.send("Sure you want to exit the game? Type `" + prefix + " exit` again to confirm or `" + prefix + " cancel` to cancel.");
             }
             break;
         case 'cancel':
             if (game.exitConfirm) {
                 game.exitConfirm = false;
-                channel.send('Game will continue.');
+                message.channel.send('Game will continue.');
             }
             else
-                channel.send('There\'s nothing to cancel right now.');
+                message.channel.send('There\'s nothing to cancel right now.');
             break;
         default:
     }
