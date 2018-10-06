@@ -24,7 +24,7 @@ client.on('message', message => {
         handleCommand(exec[1].trim(), message, game);
 
     // then check for banned words
-    else if (game && game.getPlayer(message.author.id)) {
+    else if (game && game.state == Game.State.PLAYING && game.getPlayer(message.author.id)) {
         if (game.banCheck(message.content))
             channel.send('BITCH');
     }
