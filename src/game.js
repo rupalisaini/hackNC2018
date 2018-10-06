@@ -15,7 +15,7 @@ var Game = /** @class */ (function () {
                 n = a.search(r);
             }
         }
-        return n;
+        return n !== -1;
     };
     return Game;
 }());

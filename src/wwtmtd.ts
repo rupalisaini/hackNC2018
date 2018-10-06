@@ -11,6 +11,9 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
+    if (message.author == client.user)
+        return;
+
     let exec: RegExpExecArray = new RegExp('^' + prefix + ' (.*)$').exec(message.content);
     let channel: Discord.TextChannel = message.channel as Discord.TextChannel;
     let game = games.get(channel.id);
@@ -49,7 +52,7 @@ function handleCommand (input: string, channel: Discord.TextChannel, game: Game)
     switch (command) {
         case 'ban':
             game.banWord(arg);
-            channel.send('Banned word: ' + arg);
+            channel.send('Banned phrase: ' + arg);
             break;
 
         case 'start':
