@@ -24,7 +24,7 @@ client.on('message', message => {
         handleCommand(exec[1].trim(), message, game);
 
     // then check for banned words
-    else if (game) {
+    else if (game && game.players.some(p => p.id == message.author.id)) {
         if (game.banCheck(message.content))
             channel.send('BITCH');
     }
@@ -79,8 +79,26 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
             break;
         case 'ready':
             break;
-        case 'cancel':
+
+        case 'exit':
+            if (game.exitConfirm) {
+                games.delete(channel.id);
+                channel.send('Game exited.');
+            }
+            else {
+                game.exitConfirm = true;
+                channel.send(`Sure you want to exit the game? Type \`${prefix} exit\` again to confirm or \`${prefix} cancel\` to cancel.`);
+            }
             break;
+
+        case 'cancel':
+            if (game.exitConfirm) {
+                game.exitConfirm = false;
+                channel.send('Game will continue.');
+            }
+            else channel.send('There\'s nothing to cancel right now.');
+            break;
+
         default:
     }
 };

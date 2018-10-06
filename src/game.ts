@@ -4,6 +4,7 @@ export class Game {
     
     banned: string[] = [];
     players: Player[] = [];
+    exitConfirm: boolean = false;
 
     constructor(){
     }
