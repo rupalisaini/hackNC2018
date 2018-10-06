@@ -19,6 +19,7 @@ client.on('message', function (message) {
     // check for commands
     if (exec != null)
         handleCommand(exec[1].trim(), message, game);
+    // then check for banned words
     else if (game && game.players.some(function (p) { return p.id == message.author.id; })) {
         if (game.banCheck(message.content))
             channel.send('BITCH');
@@ -53,6 +54,10 @@ function handleCommand(input, message, game) {
             message.channel.send('Game already exists in this channel.');
             break;
         case 'join':
+            if (game.getPlayer(message.author.id) !== null) {
+                message.channel.send("You can't join the game twice!!!!!!");
+                break;
+            }
             if (game.players.length < 9) {
                 var b = new player_1.Player("Contestent", message.author.id);
                 game.addPlayer(b);
@@ -63,6 +68,12 @@ function handleCommand(input, message, game) {
             }
             break;
         case 'leave':
+            if (game.getPlayer(message.author.id) === null) {
+                message.channel.send("You can't leave the game if you're not in it!!!!!");
+                break;
+            }
+            game.removePlayer(message.author.id);
+            message.channel.send("toodle");
             break;
         case 'change':
             break;
