@@ -3,6 +3,7 @@ exports.__esModule = true;
 var Game = /** @class */ (function () {
     function Game() {
         this.banned = [];
+        this.exitConfirm = false;
     }
     Game.prototype.banWord = function (a) {
         this.banned.push(a);

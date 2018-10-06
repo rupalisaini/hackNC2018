@@ -1,6 +1,7 @@
 export class Game {
     
     banned: string[] = [];
+    exitConfirm: boolean = false;
 
     constructor(){
     }

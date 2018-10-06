@@ -67,8 +67,26 @@ function handleCommand (input: string, channel: Discord.TextChannel, game: Game)
             break;
         case 'ready':
             break;
-        case 'cancel':
+
+        case 'exit':
+            if (game.exitConfirm) {
+                games.delete(channel.id);
+                channel.send('Game exited.');
+            }
+            else {
+                game.exitConfirm = true;
+                channel.send(`Sure you want to exit the game? Type \`${prefix} exit\` again to confirm or \`${prefix} cancel\` to cancel.`);
+            }
             break;
+
+        case 'cancel':
+            if (game.exitConfirm) {
+                game.exitConfirm = false;
+                channel.send('Game will continue.');
+            }
+            else channel.send('There\'s nothing to cancel right now.');
+            break;
+
         default:
     }
 };
