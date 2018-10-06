@@ -11,9 +11,9 @@ export class Player {
     static bios: string[] = ["bio1", "bio2", "bio3", "bio4"];
 
 
-    public Player(b: string){
+    constructor(b: string){
         this.name = b;
         this.status = Status.ALIVE;
-        
+        this.bio = Player.bios[Math.floor(Math.random() * 3)];
     }
 }
