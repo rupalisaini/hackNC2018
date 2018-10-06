@@ -27,9 +27,10 @@ client.on('message', message => {
     else if (game && game.state == Game.State.PLAYING) {
         let player: Player = game.getPlayer(message.author.id);
         let bannedWord: string = game.banCheck(message.content);
+        
         if (bannedWord && player && player.name == 'Contestant') {
             channel.send(`You used the banned phrase "${bannedWord}"!`);
-            channel.send(`${message.member.nickname} has been executed!`);
+            channel.send(`<@${message.author.id}> has been executed!`);
             game.removePlayer(message.author.id);
         }
     }
@@ -83,7 +84,7 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
                 message.channel.send("You can't join the game twice!!!!!!");
                 break;
             } else if (game.players.length < 9){
-                let b: Player = new Player("Contestent", message.author.id);
+                let b: Player = new Player("Contestant", message.author.id);
                 game.addPlayer(b);
                 message.channel.send("Welcome, peasant.");
             } else {
