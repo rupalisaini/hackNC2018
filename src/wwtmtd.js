@@ -20,7 +20,7 @@ client.on('message', function (message) {
     if (exec != null)
         handleCommand(exec[1].trim(), message, game);
     // then check for banned words
-    else if (game && game.players.some(function (p) { return p.id == message.author.id; })) {
+    else if (game && game.state == game_1.Game.State.PLAYING && game.getPlayer(message.author.id)) {
         if (game.banCheck(message.content))
             channel.send('BITCH');
     }
@@ -45,20 +45,31 @@ function handleCommand(input, message, game) {
         return;
     }
     // if game exists...
+    var player = game.getPlayer(message.author.id);
     switch (command) {
         case 'ban':
-            game.banWord(arg);
-            message.channel.send('Banned word: ' + arg);
+            if (game.state == game_1.Game.State.SETUP) {
+                message.channel.send('The dictator must start the game first.');
+            }
+            else if (player && player.name == 'The Supreme Dictator') {
+                game.banWord(arg);
+                message.channel.send('Banned word: ' + arg);
+            }
+            else
+                message.channel.send('Only the dictator can issue bans.');
             break;
         case 'start':
             message.channel.send('Game already exists in this channel.');
             break;
         case 'join':
-            if (game.getPlayer(message.author.id) !== null) {
+            if (game.state == game_1.Game.State.PLAYING) {
+                message.channel.send('The game has already started!');
+            }
+            else if (game.getPlayer(message.author.id) !== null) {
                 message.channel.send("You can't join the game twice!!!!!!");
                 break;
             }
-            if (game.players.length < 9) {
+            else if (game.players.length < 9) {
                 var b = new player_1.Player("Contestent", message.author.id);
                 game.addPlayer(b);
                 message.channel.send("Welcome, peasant.");
@@ -68,16 +79,47 @@ function handleCommand(input, message, game) {
             }
             break;
         case 'leave':
-            if (game.getPlayer(message.author.id) === null) {
+            if (game.state == game_1.Game.State.PLAYING) {
+                message.channel.send('The game has already started!');
+            }
+            else if (game.getPlayer(message.author.id) === null) {
                 message.channel.send("You can't leave the game if you're not in it!!!!!");
                 break;
             }
-            game.removePlayer(message.author.id);
-            message.channel.send("toodle");
+            else {
+                game.removePlayer(message.author.id);
+                message.channel.send("toodle");
+            }
             break;
         case 'change':
+            var newID = /<@(\d*)>/.exec(arg);
+            if (game.getPlayer(message.author.id).name === "Contestant") {
+                message.channel.send('How dare you disrespect our Supreme Leader.');
+            }
+            else if (game.state == game_1.Game.State.PLAYING) {
+                message.channel.send('The game has already started!');
+            }
+            else if (game.getPlayer(newID[1]).name !== "The Supreme Dictator") {
+                game.getPlayer(newID[1]).name = "The Supreme Dictator";
+                game.getPlayer(message.author.id).name = "Contestant";
+                var newUser = void 0;
+                var promise = client.fetchUser(newID[1]);
+                promise.then(function (u) { return message.channel.send("All hail our new Supreme Leader, " + u.username); });
+            }
+            else if (game.getPlayer(newID[1]).name === "The Supreme Dictator") {
+                message.channel.send("You're already the Supreme Leader. All hail the Supreme Leader.");
+            }
             break;
         case 'ready':
+            if (game.state == game_1.Game.State.PLAYING) {
+                message.channel.send('The game has already started!');
+            }
+            else if (player && player.name == 'The Supreme Dictator') {
+                game.startRound();
+                message.channel.send('Welcome to Who Wants to Marry the Dictator! (starting round...)');
+            }
+            else
+                message.channel.send('Only the dictator can start the game.');
             break;
         case 'exit':
             if (game.exitConfirm) {

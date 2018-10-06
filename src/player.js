@@ -16,7 +16,10 @@ var Player = /** @class */ (function () {
         this.status = Status.ALIVE;
         this.bio = Player.bios[Math.floor(Math.random() * 3)];
     }
-    Player.bios = ["bio1", "bio2", "bio3", "bio4"];
+    Player.bios = [
+        "You're a humble factory worker with ten loving children who are also factory workers. Your greatest defining feature is the giant wart on your nose.",
+        "bio2", "bio3", "bio4"
+    ];
     return Player;
 }());
 exports.Player = Player;
