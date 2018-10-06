@@ -85,6 +85,7 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
                 message.channel.send("Stahp");
             }
             break;
+            
         case 'leave':
             if (game.state == Game.State.PLAYING) {
                 message.channel.send('The game has already started!');
@@ -93,9 +94,12 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
                 message.channel.send("You can't leave the game if you're not in it!!!!!");
                 break;
             }
-            game.removePlayer(message.author.id);
-            message.channel.send("toodle");
+            else {
+                game.removePlayer(message.author.id);
+                message.channel.send("toodle");
+            }
             break;
+
         case 'change':
             break;
 
