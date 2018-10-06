@@ -7,38 +7,40 @@ export class Game {
     players: Player[] = [];
     exitConfirm: boolean = false;
     state: Game.State = Game.State.SETUP;
+    roundCounter: number = 1;
     round: Round = null;
 
     constructor(){
     }
 
-    startRound() {
+    startRound(): void {
         this.state = Game.State.PLAYING;
         this.round = new Round();
     }
 
-    banWord(a: string) {
+    banWord(a: string): void {
         this.banned.push(a);
     }
 
-    banCheck(a: string){
-
-        let n: number = -1;
+    banCheck(a: string): string {
+        let bannedWord: string = null;
 
         for (let i: number = 0; i < this.banned.length; i++){
-            if (n === -1){
-                let r = new RegExp(this.banned[i], "i");
-                n = a.search(r);             
+            let r = new RegExp(this.banned[i], "i");
+            if (r.exec(a)) {
+                bannedWord = this.banned[i];
+                break;
             }
         }
-        return n !== -1;
+
+        return bannedWord;
     }
 
-    addPlayer(b: Player){
+    addPlayer(b: Player): void {
         this.players.push(b);
     }
 
-    getPlayer(b: string){
+    getPlayer(b: string): Player {
         for (let i: number = 0; i < this.players.length; i++){
             if (this.players[i].id === b){
                 return this.players[i];
@@ -47,7 +49,7 @@ export class Game {
         return null;
     }
 
-    removePlayer(id: string){
+    removePlayer(id: string): void {
         let a: Player = this.getPlayer(id);
         for (let i: number = 0; i < this.players.length; i++){
             if (this.players[i] === a){

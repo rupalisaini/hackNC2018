@@ -19,14 +19,19 @@ client.on('message', message => {
     let channel: Discord.TextChannel = message.channel as Discord.TextChannel;
     let game = games.get(channel.id);
 
-    // check for commands
+    // check for and handle commands
     if (exec != null)
         handleCommand(exec[1].trim(), message, game);
 
     // then check for banned words
-    else if (game && game.state == Game.State.PLAYING && game.getPlayer(message.author.id)) {
-        if (game.banCheck(message.content))
-            channel.send('BITCH');
+    else if (game && game.state == Game.State.PLAYING) {
+        let player: Player = game.getPlayer(message.author.id);
+        let bannedWord: string = game.banCheck(message.content);
+        if (bannedWord && player && player.name == 'Contestant') {
+            channel.send(`You used the banned phrase "${bannedWord}"!`);
+            channel.send(`${message.member.nickname} has been executed!`);
+            game.removePlayer(message.author.id);
+        }
     }
 
     console.log(message.content);
@@ -85,7 +90,7 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
                 message.channel.send("Stahp");
             }
             break;
-            
+
         case 'leave':
             if (game.state == Game.State.PLAYING) {
                 message.channel.send('The game has already started!');
