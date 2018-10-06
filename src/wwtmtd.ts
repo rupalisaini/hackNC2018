@@ -65,6 +65,10 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
             break;
 
         case 'join':
+            if (game.getPlayer(message.author.id) !== null){
+                message.channel.send("You can't join the game twice!!!!!!");
+                break;
+            }
             if (game.players.length < 9){
                 let b: Player = new Player("Contestent", message.author.id);
                 game.addPlayer(b);
@@ -74,6 +78,12 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
             }
             break;
         case 'leave':
+            if (game.getPlayer(message.author.id) === null){
+                message.channel.send("You can't leave the game if you're not in it!!!!!");
+                break;
+            }
+            game.removePlayer(message.author.id);
+            message.channel.send("toodle");
             break;
         case 'change':
             break;

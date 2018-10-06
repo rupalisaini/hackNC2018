@@ -29,10 +29,35 @@ export class Game {
     addPlayer(b: Player){
         this.players.push(b);
     }
+
+    getPlayer(b: string){
+        for (let i: number = 0; i < this.players.length; i++){
+            if (this.players[i].id === b){
+                return this.players[i];
+            }
+        }
+        return null;
+    }
+
+    removePlayer(id: string){
+        let a: Player = this.getPlayer(id);
+        for (let i: number = 0; i < this.players.length; i++){
+            if (this.players[i] === a){
+                this.players.splice(i, 1);
+            }
+        }
+    }
 }
 
-let a: Game = new Game();
-a.banWord("lolx");
-a.banWord("a");
-console.log(a.banned);
-console.log(a.banCheck("i'm a little bitcho"));
+// let a: Game = new Game();
+// a.banWord("lolx");
+// a.banWord("a");
+// console.log(a.banned);
+// console.log(a.banCheck("i'm a little bitcho"));
+// a.addPlayer(new Player("bitch", "bitch"));
+// a.addPlayer(new Player("darvin","bitcho"));
+// a.addPlayer(new Player("damn","damn"));
+// a.removePlayer("bitcho");
+// console.log(a.players[0].id);
+// console.log(a.players[1].id);
+
