@@ -97,6 +97,23 @@ function handleCommand(input, message, game) {
             }
             break;
         case 'change':
+            var newID = /<@(\d*)>/.exec(arg);
+            if (game.getPlayer(message.author.id).name === "Contestant") {
+                message.channel.send('How dare you disrespect our Supreme Leader.');
+            }
+            else if (game.state == game_1.Game.State.PLAYING) {
+                message.channel.send('The game has already started!');
+            }
+            else if (game.getPlayer(newID[1]).name !== "The Supreme Dictator") {
+                game.getPlayer(newID[1]).name = "The Supreme Dictator";
+                game.getPlayer(message.author.id).name = "Contestant";
+                var newUser = void 0;
+                var promise = client.fetchUser(newID[1]);
+                promise.then(function (u) { return message.channel.send("All hail our new Supreme Leader, " + u.username); });
+            }
+            else if (game.getPlayer(newID[1]).name === "The Supreme Dictator") {
+                message.channel.send("You're already the Supreme Leader. All hail the Supreme Leader.");
+            }
             break;
         case 'ready':
             if (game.state == game_1.Game.State.PLAYING) {
