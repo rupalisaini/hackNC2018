@@ -3,6 +3,7 @@ exports.__esModule = true;
 var Game = /** @class */ (function () {
     function Game() {
         this.banned = [];
+        this.players = [];
         this.exitConfirm = false;
     }
     Game.prototype.banWord = function (a) {
@@ -17,6 +18,9 @@ var Game = /** @class */ (function () {
             }
         }
         return n !== -1;
+    };
+    Game.prototype.addPlayer = function (b) {
+        this.players.push(b);
     };
     return Game;
 }());

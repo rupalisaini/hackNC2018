@@ -4,6 +4,7 @@ var Discord = require("discord.js");
 var client = new Discord.Client();
 var config = require("./config");
 var game_1 = require("./game");
+var player_1 = require("./player");
 var prefix = 'tator';
 var games = new Map();
 client.on('ready', function () {
@@ -17,37 +18,49 @@ client.on('message', function (message) {
     var game = games.get(channel.id);
     // check for commands
     if (exec != null)
-        handleCommand(exec[1].trim(), channel, game);
-    else if (game) {
+        handleCommand(exec[1].trim(), message, game);
+    else if (game && game.players.some(function (p) { return p.id == message.author.id; })) {
         if (game.banCheck(message.content))
             channel.send('BITCH');
     }
     console.log(message.content);
 });
-function handleCommand(input, channel, game) {
+function handleCommand(input, message, game) {
     var inputArr = input.split(' ');
     var command = inputArr.shift();
     var arg = inputArr.join(' ');
     // check to make sure game exists
     if (game == null) {
         if (command == 'start') {
-            games.set(channel.id, new game_1.Game());
-            channel.send('Started game.');
+            var a = new game_1.Game();
+            games.set(message.channel.id, a);
+            message.channel.send('Started game.');
+            var b = new player_1.Player("The Supreme Dictator", message.author.id);
+            a.addPlayer(b);
+            message.channel.send("Welcome Supreme Leader.");
         }
         else
-            channel.send('There\'s no game running in this channel.');
+            message.channel.send('There\'s no game running in this channel.');
         return;
     }
     // if game exists...
     switch (command) {
         case 'ban':
             game.banWord(arg);
-            channel.send('Banned phrase: ' + arg);
+            message.channel.send('Banned word: ' + arg);
             break;
         case 'start':
-            channel.send('Game already exists in this channel.');
+            message.channel.send('Game already exists in this channel.');
             break;
         case 'join':
+            if (game.players.length < 9) {
+                var b = new player_1.Player("Contestent", message.author.id);
+                game.addPlayer(b);
+                message.channel.send("Welcome, peasant.");
+            }
+            else {
+                message.channel.send("Stahp");
+            }
             break;
         case 'leave':
             break;
