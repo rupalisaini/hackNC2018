@@ -19,7 +19,7 @@ export class Game {
                 n = a.search(r);             
             }
         }
-        return n;
+        return n !== -1;
     }
 }
 
