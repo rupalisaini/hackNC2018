@@ -86,7 +86,10 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
             }
             break;
         case 'leave':
-            if (game.getPlayer(message.author.id) === null){
+            if (game.state == Game.State.PLAYING) {
+                message.channel.send('The game has already started!');
+            }
+            else if (game.getPlayer(message.author.id) === null){
                 message.channel.send("You can't leave the game if you're not in it!!!!!");
                 break;
             }
