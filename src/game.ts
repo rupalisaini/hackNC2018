@@ -1,12 +1,20 @@
 import {Player} from './player';
+import {Round} from './round';
 
 export class Game {
     
     banned: string[] = [];
     players: Player[] = [];
     exitConfirm: boolean = false;
+    state: Game.State = Game.State.SETUP;
+    round: Round = null;
 
     constructor(){
+    }
+
+    startRound() {
+        this.state = Game.State.PLAYING;
+        this.round = new Round();
     }
 
     banWord(a: string) {
@@ -61,3 +69,9 @@ export class Game {
 // console.log(a.players[0].id);
 // console.log(a.players[1].id);
 
+export namespace Game {
+    export enum State {
+        SETUP,
+        PLAYING
+    }
+}
