@@ -1,6 +1,9 @@
+import {Player} from './player';
+
 export class Game {
     
     banned: string[] = [];
+    players: Player[] = [];
     exitConfirm: boolean = false;
 
     constructor(){
@@ -21,6 +24,10 @@ export class Game {
             }
         }
         return n !== -1;
+    }
+
+    addPlayer(b: Player){
+        this.players.push(b);
     }
 }
 
