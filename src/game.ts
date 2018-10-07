@@ -1,5 +1,6 @@
 import {Player} from './player';
 import {Round} from './round';
+import * as Discord from 'discord.js';
 
 export class Game {
     
@@ -7,16 +8,25 @@ export class Game {
     players: Player[] = [];
     exitConfirm: boolean = false;
     state: Game.State = Game.State.SETUP;
-    roundCounter: number = 1;
+    roundCounter: number = 0;
     round: Round = null;
     dictator: Player = null;
+    channel: Discord.TextChannel = null;
 
     constructor(){
     }
 
-    startRound(): void {
+    startRound(channel: Discord.TextChannel): void {
         this.state = Game.State.PLAYING;
-        this.round = new Round();
+        this.channel = channel;        
+        this.round = new Round(channel, this);
+        this.roundCounter++;
+    }
+
+    endRound(){
+        this.round = null;
+        this.state = Game.State.ELIMINATING;
+        this.channel.send("The round has ended. Please submit your elimination.")
     }
 
     banWord(a: string): void {
@@ -64,23 +74,13 @@ export class Game {
         let count: Player[] = this.players.filter(p => p.status === Player.Status.ALIVE);
         return count.length;
     }
-}
 
-// let a: Game = new Game();
-// a.banWord("lolx");
-// a.banWord("a");
-// console.log(a.banned);
-// console.log(a.banCheck("i'm a little bitcho"));
-// a.addPlayer(new Player("bitch", "bitch"));
-// a.addPlayer(new Player("darvin","bitcho"));
-// a.addPlayer(new Player("damn","damn"));
-// a.removePlayer("bitcho");
-// console.log(a.players[0].id);
-// console.log(a.players[1].id);
+}
 
 export namespace Game {
     export enum State {
         SETUP,
-        PLAYING
+        PLAYING,
+        ELIMINATING
     }
 }
