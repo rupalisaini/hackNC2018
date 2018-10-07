@@ -1,5 +1,6 @@
 "use strict";
 exports.__esModule = true;
+var player_1 = require("./player");
 var round_1 = require("./round");
 var Game = /** @class */ (function () {
     function Game() {
@@ -9,6 +10,7 @@ var Game = /** @class */ (function () {
         this.state = Game.State.SETUP;
         this.roundCounter = 1;
         this.round = null;
+        this.dictator = null;
     }
     Game.prototype.startRound = function () {
         this.state = Game.State.PLAYING;
@@ -46,6 +48,11 @@ var Game = /** @class */ (function () {
                 this.players.splice(i, 1);
             }
         }
+    };
+    Game.prototype.howManyAlive = function () {
+        var i = 0;
+        var count = this.players.filter(function (p) { return p.status === player_1.Player.Status.ALIVE; });
+        return count.length;
     };
     return Game;
 }());

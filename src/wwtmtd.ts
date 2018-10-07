@@ -129,7 +129,7 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
 
             else {
                 game.removePlayer(message.author.id);
-                message.channel.send("toodle");c
+                message.channel.send("toodle");
             }
             break;
 
