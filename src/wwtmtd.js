@@ -14,8 +14,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [0, t.value];
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -54,14 +54,14 @@ client.on('message', function (message) {
     // check for and handle commands
     if (exec != null)
         handleCommand(exec[1].trim(), message, game);
+    // then check for banned words
     else if (game && game.state == game_1.Game.State.PLAYING) {
         var player = game.getPlayer(message.author.id);
         if (player && player.status == player_1.Player.Status.ALIVE && player.name == 'Contestant') {
             var bannedWord = game.banCheck(message.content);
             if (bannedWord) {
-                channel.send("You used the banned phrase \"" + bannedWord + "\"!");
-                channel.send("<@" + message.author.id + "> has been executed!");
                 player.status = player_1.Player.Status.DEAD;
+                channel.send("You used the banned phrase \"" + bannedWord + "\".\r\n<@" + message.author.id + "> has been executed!");
                 checkEnd(channel);
             }
         }
@@ -81,7 +81,10 @@ function getPlayerList(channel) {
                         var user, member;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
-                                case 0: return [4 /*yield*/, client.fetchUser(player.id).then(function (u) { return user = u; })];
+                                case 0:
+                                    if (player.status == player_1.Player.Status.DEAD)
+                                        return [2 /*return*/, "continue"];
+                                    return [4 /*yield*/, client.fetchUser(player.id).then(function (u) { return user = u; })];
                                 case 1:
                                     _a.sent();
                                     return [4 /*yield*/, channel.guild.fetchMember(user).then(function (g) { return member = g; })];
@@ -115,6 +118,42 @@ function getPlayerList(channel) {
         });
     });
 }
+function sendBios(channel) {
+    return __awaiter(this, void 0, void 0, function () {
+        var game, _loop_2, _i, _a, player;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    game = games.get(channel.id);
+                    _loop_2 = function (player) {
+                        var user;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, client.fetchUser(player.id).then(function (u) { return user = u; })];
+                                case 1:
+                                    _a.sent();
+                                    user.send(game.getPlayer(user.id).bio);
+                                    return [2 /*return*/];
+                            }
+                        });
+                    };
+                    _i = 0, _a = game.players;
+                    _b.label = 1;
+                case 1:
+                    if (!(_i < _a.length)) return [3 /*break*/, 4];
+                    player = _a[_i];
+                    return [5 /*yield**/, _loop_2(player)];
+                case 2:
+                    _b.sent();
+                    _b.label = 3;
+                case 3:
+                    _i++;
+                    return [3 /*break*/, 1];
+                case 4: return [2 /*return*/];
+            }
+        });
+    });
+}
 function checkEnd(channel) {
     var game = games.get(channel.id);
     var howManyAlive = game.howManyAlive();
@@ -126,7 +165,7 @@ function checkEnd(channel) {
             contestant = game.players[0];
         else
             contestant = game.players[1];
-        channel.send("Congratulations, " + contestant.id + "! You won the game and you get to marry the Supreme Leader!");
+        channel.send("Congratulations, <@" + contestant.id + ">! You won the game and you get to marry the Supreme Leader!");
         game.state = game_1.Game.State.SETUP;
         for (var _i = 0, _a = game.players; _i < _a.length; _i++) {
             var player = _a[_i];
@@ -231,6 +270,7 @@ function handleCommand(input, message, game) {
             else {
                 game.startRound();
                 message.channel.send('Welcome to Who Wants to Marry the Dictator! (starting round...)');
+                sendBios(message.channel);
             }
             break;
         case 'exit':
