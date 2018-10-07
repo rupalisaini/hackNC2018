@@ -3,6 +3,7 @@ const client = new Discord.Client();
 import * as config from './config';
 import { Game } from './game';
 import { Player } from './player';
+import * as _ from 'underscore';
 
 const prefix = 'tator';
 let games: Map<string, Game> = new Map<string, Game>();
@@ -70,12 +71,15 @@ async function getPlayerList(channel: Discord.TextChannel): Promise<string> {
 }
 
 async function sendBios(channel: Discord.TextChannel){
-    let game = games.get(channel.id);
+    let game: Game = games.get(channel.id);
+    let numContestants: number = game.players.length - 1;
+    let bios: string[] = _.sample(Player.bios, numContestants);
+
     for (let player of game.players) {
-        if(player.name === "Contestant"){
+        if (player.name === "Contestant"){
             let user: Discord.User;
             await client.fetchUser(player.id).then(u => user = u);
-            user.send(game.getPlayer(user.id).bio);
+            user.send(bios.pop());
         }
     }
 }
@@ -155,7 +159,6 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
                 game.addPlayer(b);
                 message.channel.send("Welcome, peasant.");
                 getPlayerList(message.channel as Discord.TextChannel).then(m => message.channel.send(m));
-                message.author.send("hello");
             } else {
                 message.channel.send("Stahp");
             }

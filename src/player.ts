@@ -4,7 +4,6 @@ export class Player {
     name: string = "";
     id: string = "";
     game: Game;
-    bio: string = "";
     status: Player.Status;
     static bios: string[] = [
         "You're a humble factory worker with ten loving children, who are also factory workers. Your greatest defining feature is the giant wart on your nose. Your children are tired of working and need a vacation. There are probably other ways to get them a vacation, but you're not all that smart, so you decided to marry the Supreme Leader",
@@ -26,11 +25,10 @@ export class Player {
         "You're a dentist who once had the privilege of cleaning the Supreme Leader's teeth. They had the most magnificent, off-white teeth that you have ever seen. You just want to see those teeth again, and you're willing to risk your life for the chance."
     ];
 
-    constructor(b: string, id: string){
+    constructor(b: string, id: string) {
         this.name = b;
         this.id = id;
         this.status = Player.Status.ALIVE;
-        this.bio = Player.bios[Math.floor(Math.random() * 3)];
     }
 }
 
