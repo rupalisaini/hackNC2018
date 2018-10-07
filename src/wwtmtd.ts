@@ -144,7 +144,6 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
                 game.addPlayer(b);
                 message.channel.send("Welcome, peasant.");
                 getPlayerList(message.channel as Discord.TextChannel).then(m => message.channel.send(m));
-                message.author.send("hello");
             } else {
                 message.channel.send("Stahp");
             }

@@ -1,4 +1,5 @@
 import {Game} from './game';
+import * as _ from 'underscore';
 
 export class Player {
     name: string = "";
@@ -30,7 +31,7 @@ export class Player {
         this.name = b;
         this.id = id;
         this.status = Player.Status.ALIVE;
-        this.bio = Player.bios[Math.floor(Math.random() * 3)];
+        this.bio = _.sample(Player.bios);
     }
 }
 
