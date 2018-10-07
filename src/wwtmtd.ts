@@ -159,6 +159,7 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
                 game.removePlayer(message.author.id);
                 message.channel.send("toodle");
                 getPlayerList(message.channel as Discord.TextChannel).then(m => message.channel.send(m));
+
             }
             break;
 

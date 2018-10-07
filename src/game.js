@@ -51,12 +51,8 @@ var Game = /** @class */ (function () {
     };
     Game.prototype.howManyAlive = function () {
         var i = 0;
-        for (var j = 0; j < this.players.length; j++) {
-            if (this.players[i].status === player_1.Player.Status.ALIVE) {
-                i++;
-            }
-        }
-        return i;
+        var count = this.players.filter(function (p) { return p.status === player_1.Player.Status.ALIVE; });
+        return count.length;
     };
     return Game;
 }());

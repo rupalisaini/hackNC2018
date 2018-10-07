@@ -54,6 +54,7 @@ client.on('message', function (message) {
     // check for and handle commands
     if (exec != null)
         handleCommand(exec[1].trim(), message, game);
+    // then check for banned words
     else if (game && game.state == game_1.Game.State.PLAYING) {
         var player = game.getPlayer(message.author.id);
         if (player && player.status == player_1.Player.Status.ALIVE && player.name == 'Contestant') {
@@ -120,6 +121,7 @@ function checkEnd(channel) {
     var howManyAlive = game.howManyAlive();
     if (howManyAlive < 2)
         channel.send('error: less than two players left');
+
     else if (howManyAlive == 2) {
         var contestant = void 0;
         if (game.players[0].name == 'Contestant')
@@ -135,6 +137,7 @@ function checkEnd(channel) {
     }
     else
         getPlayerList(channel).then(function (m) { return channel.send(m); });
+
 }
 function handleCommand(input, message, game) {
     var inputArr = input.split(' ');
@@ -147,6 +150,7 @@ function handleCommand(input, message, game) {
             games.set(message.channel.id, a);
             message.channel.send('Started game. Welcome, Supreme Leader.');
             var b = new player_1.Player("The Supreme Leader", message.author.id);
+
             a.dictator = b;
             a.addPlayer(b);
             getPlayerList(message.channel).then(function (m) { return message.channel.send(m); });
@@ -216,6 +220,7 @@ function handleCommand(input, message, game) {
                 game.dictator = game.getPlayer(newID[1]);
                 message.channel.send("All hail our new Supreme Leader, " + "<@" + newID[1] + ">");
                 getPlayerList(message.channel).then(function (m) { return message.channel.send(m); });
+
             }
             else if (game.getPlayer(newID[1]).name === "The Supreme Leader") {
                 message.channel.send("You're already the Supreme Leader. All hail the Supreme Leader.");
