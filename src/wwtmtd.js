@@ -16,13 +16,18 @@ client.on('message', function (message) {
     var exec = new RegExp('^' + prefix + ' (.*)$').exec(message.content);
     var channel = message.channel;
     var game = games.get(channel.id);
-    // check for commands
+    // check for and handle commands
     if (exec != null)
         handleCommand(exec[1].trim(), message, game);
-    // then check for banned words
-    else if (game && game.state == game_1.Game.State.PLAYING && game.getPlayer(message.author.id)) {
-        if (game.banCheck(message.content))
-            channel.send('BITCH');
+    else if (game && game.state == game_1.Game.State.PLAYING) {
+        var player = game.getPlayer(message.author.id);
+        var bannedWord = game.banCheck(message.content);
+        console.log(player, bannedWord, player.name);
+        if (bannedWord && player && player.name == 'Contestant') {
+            channel.send("You used the banned phrase \"" + bannedWord + "\"!");
+            channel.send(message.member.nickname + " has been executed!");
+            game.removePlayer(message.author.id);
+        }
     }
     console.log(message.content);
 });
@@ -70,7 +75,7 @@ function handleCommand(input, message, game) {
                 break;
             }
             else if (game.players.length < 9) {
-                var b = new player_1.Player("Contestent", message.author.id);
+                var b = new player_1.Player("Contestant", message.author.id);
                 game.addPlayer(b);
                 message.channel.send("Welcome, peasant.");
                 message.author.send("hello");

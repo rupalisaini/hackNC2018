@@ -7,6 +7,7 @@ var Game = /** @class */ (function () {
         this.players = [];
         this.exitConfirm = false;
         this.state = Game.State.SETUP;
+        this.roundCounter = 1;
         this.round = null;
     }
     Game.prototype.startRound = function () {
@@ -17,14 +18,15 @@ var Game = /** @class */ (function () {
         this.banned.push(a);
     };
     Game.prototype.banCheck = function (a) {
-        var n = -1;
+        var bannedWord = null;
         for (var i = 0; i < this.banned.length; i++) {
-            if (n === -1) {
-                var r = new RegExp(this.banned[i], "i");
-                n = a.search(r);
+            var r = new RegExp(this.banned[i], "i");
+            if (r.exec(a)) {
+                bannedWord = this.banned[i];
+                break;
             }
         }
-        return n !== -1;
+        return bannedWord;
     };
     Game.prototype.addPlayer = function (b) {
         this.players.push(b);

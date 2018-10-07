@@ -26,16 +26,42 @@ client.on('message', message => {
     // then check for banned words
     else if (game && game.state == Game.State.PLAYING) {
         let player: Player = game.getPlayer(message.author.id);
-        let bannedWord: string = game.banCheck(message.content);
-        if (bannedWord && player && player.name == 'Contestant') {
-            channel.send(`You used the banned phrase "${bannedWord}"!`);
-            channel.send(`${message.member.nickname} has been executed!`);
-            game.removePlayer(message.author.id);
+
+        if (player && player.status == Player.Status.ALIVE && player.name == 'Contestant') {
+            let bannedWord: string = game.banCheck(message.content);
+
+            if (bannedWord) {
+                channel.send(`You used the banned phrase "${bannedWord}"!`);
+                channel.send(`<@${message.author.id}> has been executed!`);
+                player.status = Player.Status.DEAD;
+                checkEnd(channel);
+            }
         }
     }
 
     console.log(message.content);
 });
+
+function checkEnd (channel: Discord.TextChannel): void {
+    let game = games.get(channel.id);
+    let howManyAlive = game.howManyAlive();
+
+    if (howManyAlive < 2)
+        channel.send('error: less than two players left');
+
+    if (howManyAlive == 2) {
+        let contestant: Player;
+        if (game.players[0].name == 'Contestant')
+            contestant = game.players[0];
+        else
+            contestant = game.players[1];
+
+        channel.send(`Congratulations, ${contestant.id}! You won the game and you get to marry the dictator!`);
+        game.state = Game.State.SETUP;
+        for (let player of game.players)
+            player.status = Player.Status.ALIVE;
+    }
+}
 
 function handleCommand (input: string, message: Discord.Message, game: Game): void {
     let inputArr: string[] = input.split(' ');
@@ -49,7 +75,9 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
             let a: Game = new Game();
             games.set(message.channel.id, a);
             message.channel.send('Started game.');
+
             let b: Player = new Player("The Supreme Dictator", message.author.id);
+            a.dictator = b;
             a.addPlayer(b);
             message.channel.send("Welcome Supreme Leader.");
         }
@@ -93,16 +121,15 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
             break;
 
         case 'leave':
-            if (game.state == Game.State.PLAYING) {
+            if (game.state == Game.State.PLAYING)
                 message.channel.send('The game has already started!');
-            }
-            else if (game.getPlayer(message.author.id) === null){
+
+            else if (game.getPlayer(message.author.id) === null)
                 message.channel.send("You can't leave the game if you're not in it!!!!!");
-                break;
-            }
+
             else {
                 game.removePlayer(message.author.id);
-                message.channel.send("toodle");
+                message.channel.send("toodle");c
             }
             break;
 
@@ -126,14 +153,19 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
             break;
 
         case 'ready':
-            if (game.state == Game.State.PLAYING) {
+            if (game.state == Game.State.PLAYING)
                 message.channel.send('The game has already started!');
-            }
-            else if (player && player.name == 'The Supreme Dictator') {
+        
+            else if (!player || player.name == 'Contestant')
+                message.channel.send('Only the dictator can start the game.');
+        
+            else if (game.players.length < 3)
+                message.channel.send('You need at least three players (one dictator and two contestants) to play.');
+            
+            else {
                 game.startRound();
                 message.channel.send('Welcome to Who Wants to Marry the Dictator! (starting round...)');
             }
-            else message.channel.send('Only the dictator can start the game.');
             break;
 
         case 'exit':
