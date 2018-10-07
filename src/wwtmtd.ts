@@ -69,6 +69,17 @@ async function getPlayerList(channel: Discord.TextChannel): Promise<string> {
     return dictator + '\r\nContestants:\r\n' + contestants.join('\r\n');
 }
 
+async function sendBios(channel: Discord.TextChannel){
+    let game = games.get(channel.id);
+    for (let player of game.players) {
+        if(player.name === "Contestant"){
+            let user: Discord.User;
+            await client.fetchUser(player.id).then(u => user = u);
+            user.send(game.getPlayer(user.id).bio);
+        }
+    }
+}
+
 function checkEnd (channel: Discord.TextChannel): void {
     let game = games.get(channel.id);
     let howManyAlive = game.howManyAlive();
@@ -197,15 +208,16 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
             else {
                 game.startRound();
                 message.channel.send('Welcome to Who Wants to Marry the Dictator! (starting round...)');
+                sendBios(message.channel as Discord.TextChannel);
             }
             break;
 
         case 'exit':
-            if (player.name == 'Contestant')
-                message.channel.send('Only the Supreme Leader can exit the game.');
+        if (player.name == 'Contestant')
+            message.channel.send('Only the Supreme Leader can exit the game.');
 
-            else if (game.exitConfirm) {
-                games.delete(message.channel.id);
+        else if (game.exitConfirm) {
+            games.delete(message.channel.id);
                 message.channel.send('Game exited.');
             }
             else {
@@ -215,14 +227,14 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
             break;
 
         case 'cancel':
-            if (!game.exitConfirm)
-                message.channel.send('There\'s nothing to cancel right now.');
-            
-            else if (player.name == 'Contestant')
-                message.channel.send('Only the Supreme Leader can exit the game.');
+        if (!game.exitConfirm)
+            message.channel.send('There\'s nothing to cancel right now.');
+        
+        else if (player.name == 'Contestant')
+            message.channel.send('Only the Supreme Leader can exit the game.');
 
-            else {
-                game.exitConfirm = false;
+        else {
+            game.exitConfirm = false;
                 message.channel.send('Game will continue.');
             }
             break;
