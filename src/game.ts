@@ -61,12 +61,8 @@ export class Game {
 
     howManyAlive(){
         let i: number = 0;
-        for (let j: number = 0; j < this.players.length; j++){
-            if (this.players[i].status === Player.Status.ALIVE){
-                i++;
-            }
-        }
-        return i;
+        let count: Player[] = this.players.filter(p => p.status === Player.Status.ALIVE);
+        return count.length;
     }
 }
 

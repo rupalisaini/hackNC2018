@@ -19,18 +19,40 @@ client.on('message', function (message) {
     // check for and handle commands
     if (exec != null)
         handleCommand(exec[1].trim(), message, game);
+    // then check for banned words
     else if (game && game.state == game_1.Game.State.PLAYING) {
         var player = game.getPlayer(message.author.id);
-        var bannedWord = game.banCheck(message.content);
-        console.log(player, bannedWord, player.name);
-        if (bannedWord && player && player.name == 'Contestant') {
-            channel.send("You used the banned phrase \"" + bannedWord + "\"!");
-            channel.send(message.member.nickname + " has been executed!");
-            game.removePlayer(message.author.id);
+        if (player && player.status == player_1.Player.Status.ALIVE && player.name == 'Contestant') {
+            var bannedWord = game.banCheck(message.content);
+            if (bannedWord) {
+                channel.send("You used the banned phrase \"" + bannedWord + "\"!");
+                channel.send("<@" + message.author.id + "> has been executed!");
+                player.status = player_1.Player.Status.DEAD;
+                checkEnd(channel);
+            }
         }
     }
     console.log(message.content);
 });
+function checkEnd(channel) {
+    var game = games.get(channel.id);
+    var howManyAlive = game.howManyAlive();
+    if (howManyAlive < 2)
+        channel.send('error: less than two players left');
+    if (howManyAlive == 2) {
+        var contestant = void 0;
+        if (game.players[0].name == 'Contestant')
+            contestant = game.players[0];
+        else
+            contestant = game.players[1];
+        channel.send("Congratulations, " + contestant.id + "! You won the game and you get to marry the dictator!");
+        game.state = game_1.Game.State.SETUP;
+        for (var _i = 0, _a = game.players; _i < _a.length; _i++) {
+            var player = _a[_i];
+            player.status = player_1.Player.Status.ALIVE;
+        }
+    }
+}
 function handleCommand(input, message, game) {
     var inputArr = input.split(' ');
     var command = inputArr.shift();
@@ -42,6 +64,7 @@ function handleCommand(input, message, game) {
             games.set(message.channel.id, a);
             message.channel.send('Started game.');
             var b = new player_1.Player("The Supreme Dictator", message.author.id);
+            a.dictator = b;
             a.addPlayer(b);
             message.channel.send("Welcome Supreme Leader.");
         }
@@ -85,13 +108,10 @@ function handleCommand(input, message, game) {
             }
             break;
         case 'leave':
-            if (game.state == game_1.Game.State.PLAYING) {
+            if (game.state == game_1.Game.State.PLAYING)
                 message.channel.send('The game has already started!');
-            }
-            else if (game.getPlayer(message.author.id) === null) {
+            else if (game.getPlayer(message.author.id) === null)
                 message.channel.send("You can't leave the game if you're not in it!!!!!");
-                break;
-            }
             else {
                 game.removePlayer(message.author.id);
                 message.channel.send("toodle");
@@ -108,6 +128,7 @@ function handleCommand(input, message, game) {
             else if (game.getPlayer(newID_1[1]).name !== "The Supreme Dictator") {
                 game.getPlayer(newID_1[1]).name = "The Supreme Dictator";
                 game.getPlayer(message.author.id).name = "Contestant";
+                game.dictator = game.getPlayer(newID_1[1]);
                 var newUser = void 0;
                 var promise = client.fetchUser(newID_1[1]);
                 promise.then(function (u) { return message.channel.send("All hail our new Supreme Leader, " + "<@" + newID_1[1] + ">"); });
@@ -117,15 +138,16 @@ function handleCommand(input, message, game) {
             }
             break;
         case 'ready':
-            if (game.state == game_1.Game.State.PLAYING) {
+            if (game.state == game_1.Game.State.PLAYING)
                 message.channel.send('The game has already started!');
-            }
-            else if (player && player.name == 'The Supreme Dictator') {
+            else if (!player || player.name == 'Contestant')
+                message.channel.send('Only the dictator can start the game.');
+            else if (game.players.length < 3)
+                message.channel.send('You need at least three players (one dictator and two contestants) to play.');
+            else {
                 game.startRound();
                 message.channel.send('Welcome to Who Wants to Marry the Dictator! (starting round...)');
             }
-            else
-                message.channel.send('Only the dictator can start the game.');
             break;
         case 'exit':
             if (game.exitConfirm) {
