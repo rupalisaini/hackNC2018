@@ -92,12 +92,7 @@ function checkEnd (channel: Discord.TextChannel): void {
         channel.send('error: less than two players left');
 
     else if (howManyAlive == 2) {
-        let contestant: Player;
-        if (game.players[0].name == 'Contestant')
-            contestant = game.players[0];
-        else
-            contestant = game.players[1];
-
+        let contestant: Player = game.players.filter(p => p.name == 'Contestant' && p.status = Player.Status.ALIVE)[0];
         channel.send(`Congratulations, <@${contestant.id}>! You won the game and you get to marry the Supreme Leader!`);
         game.state = Game.State.SETUP;
         for (let player of game.players)

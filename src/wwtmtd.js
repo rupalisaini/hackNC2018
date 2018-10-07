@@ -14,8 +14,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -40,6 +40,7 @@ var client = new Discord.Client();
 var config = require("./config");
 var game_1 = require("./game");
 var player_1 = require("./player");
+var _ = require("underscore");
 var prefix = 'tator';
 var games = new Map();
 client.on('ready', function () {
@@ -54,7 +55,6 @@ client.on('message', function (message) {
     // check for and handle commands
     if (exec != null)
         handleCommand(exec[1].trim(), message, game);
-    // then check for banned words
     else if (game && game.state == game_1.Game.State.PLAYING) {
         var player = game.getPlayer(message.author.id);
         if (player && player.status == player_1.Player.Status.ALIVE && player.name == 'Contestant') {
@@ -120,20 +120,25 @@ function getPlayerList(channel) {
 }
 function sendBios(channel) {
     return __awaiter(this, void 0, void 0, function () {
-        var game, _loop_2, _i, _a, player;
+        var game, numContestants, bios, _loop_2, _i, _a, player;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     game = games.get(channel.id);
+                    numContestants = game.players.length - 1;
+                    bios = _.sample(player_1.Player.bios, numContestants);
                     _loop_2 = function (player) {
-                        var user;
+                        var user_1;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
-                                case 0: return [4 /*yield*/, client.fetchUser(player.id).then(function (u) { return user = u; })];
+                                case 0:
+                                    if (!(player.name === "Contestant")) return [3 /*break*/, 2];
+                                    return [4 /*yield*/, client.fetchUser(player.id).then(function (u) { return user_1 = u; })];
                                 case 1:
                                     _a.sent();
-                                    user.send(game.getPlayer(user.id).bio);
-                                    return [2 /*return*/];
+                                    user_1.send(bios.pop());
+                                    _a.label = 2;
+                                case 2: return [2 /*return*/];
                             }
                         });
                     };
@@ -160,11 +165,7 @@ function checkEnd(channel) {
     if (howManyAlive < 2)
         channel.send('error: less than two players left');
     else if (howManyAlive == 2) {
-        var contestant = void 0;
-        if (game.players[0].name == 'Contestant')
-            contestant = game.players[0];
-        else
-            contestant = game.players[1];
+        var contestant = game.players.filter(function (p) { return p.name == 'Contestant' && p.status; }, player_1.Player.Status.ALIVE)[0];
         channel.send("Congratulations, <@" + contestant.id + ">! You won the game and you get to marry the Supreme Leader!");
         game.state = game_1.Game.State.SETUP;
         for (var _i = 0, _a = game.players; _i < _a.length; _i++) {
@@ -224,7 +225,6 @@ function handleCommand(input, message, game) {
                 game.addPlayer(b);
                 message.channel.send("Welcome, peasant.");
                 getPlayerList(message.channel).then(function (m) { return message.channel.send(m); });
-                message.author.send("hello");
             }
             else {
                 message.channel.send("Stahp");
