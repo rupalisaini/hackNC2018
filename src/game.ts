@@ -9,6 +9,7 @@ export class Game {
     state: Game.State = Game.State.SETUP;
     roundCounter: number = 1;
     round: Round = null;
+    dictator: Player = null;
 
     constructor(){
     }
@@ -56,6 +57,16 @@ export class Game {
                 this.players.splice(i, 1);
             }
         }
+    }
+
+    howManyAlive(){
+        let i: number = 0;
+        for (let j: number = 0; j < this.players.length; j++){
+            if (this.players[i].status === Player.Status.ALIVE){
+                i++;
+            }
+        }
+        return i;
     }
 }
 

@@ -83,9 +83,10 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
                 message.channel.send("You can't join the game twice!!!!!!");
                 break;
             } else if (game.players.length < 9){
-                let b: Player = new Player("Contestent", message.author.id);
+                let b: Player = new Player("Contestant", message.author.id);
                 game.addPlayer(b);
                 message.channel.send("Welcome, peasant.");
+                message.author.send("hello");
             } else {
                 message.channel.send("Stahp");
             }
@@ -114,10 +115,10 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
             } else if (game.getPlayer(newID[1]).name !== "The Supreme Dictator"){
                 game.getPlayer(newID[1]).name = "The Supreme Dictator";
                 game.getPlayer(message.author.id).name = "Contestant";
-                
+                game.dictator = game.getPlayer(newID[1]);
                 let newUser: Discord.User;
                 let promise: Promise<Discord.User> = client.fetchUser(newID[1]);
-                promise.then(u => message.channel.send("All hail our new Supreme Leader, " + u.username));
+                promise.then(u => message.channel.send("All hail our new Supreme Leader, " + "<@" + newID[1] +">"));
 
             } else if (game.getPlayer(newID[1]).name === "The Supreme Dictator"){
                 message.channel.send("You're already the Supreme Leader. All hail the Supreme Leader.");                
