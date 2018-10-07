@@ -1,10 +1,5 @@
 import {Game} from './game';
 
-enum Status {
-    DEAD, 
-    ALIVE
-};
-
 export class Player {
     name: string = "";
     id: string = "";
@@ -22,4 +17,11 @@ export class Player {
         this.status = Status.ALIVE;
         this.bio = Player.bios[Math.floor(Math.random() * 3)];
     }
+}
+
+export namespace Player {
+    export enum Status {
+        DEAD, 
+        ALIVE
+    };
 }
