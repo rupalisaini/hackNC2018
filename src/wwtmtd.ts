@@ -31,9 +31,8 @@ client.on('message', message => {
             let bannedWord: string = game.banCheck(message.content);
 
             if (bannedWord) {
-                channel.send(`You used the banned phrase "${bannedWord}"!`);
-                channel.send(`<@${message.author.id}> has been executed!`);
                 player.status = Player.Status.DEAD;
+                channel.send(`You used the banned phrase "${bannedWord}".\r\n<@${message.author.id}> has been executed!`);
                 checkEnd(channel);
             }
         }
@@ -49,6 +48,9 @@ async function getPlayerList(channel: Discord.TextChannel): Promise<string> {
     let contestants: string[] = [];
 
     for (let player of game.players) {
+        if (player.status == Player.Status.DEAD)
+            continue;
+
         let user: Discord.User;
         let member: Discord.GuildMember;
 
@@ -81,7 +83,7 @@ function checkEnd (channel: Discord.TextChannel): void {
         else
             contestant = game.players[1];
 
-        channel.send(`Congratulations, ${contestant.id}! You won the game and you get to marry the Supreme Leader!`);
+        channel.send(`Congratulations, <@${contestant.id}>! You won the game and you get to marry the Supreme Leader!`);
         game.state = Game.State.SETUP;
         for (let player of game.players)
             player.status = Player.Status.ALIVE;
