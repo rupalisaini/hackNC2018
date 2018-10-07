@@ -16,7 +16,8 @@ export class Player {
         "You entered this competition because you thought you would get a free toaster if you sent in an application. And now, not only are you forced to compete in this horror movie version of the bachelor, you don't even get a free toaster. You still like living though so you're trying to win.",
         "You're the Supreme Leader's mother and just want him to stop all of this and come home to you. But you can't let them know of this or they will immediately execute you (because of an old grudge over a pet snake).",
         "You're a librarian with a passion for words. Normally, you wouldn't care for games like this but after accidentally addressing a thorough and emotional love letter to the Supreme Leader instead of the kind barista at your favorite coffee place, you want to win just so you can live on and forever keep the barista.",
-        "You're an up and coming actor looking for some publicity and thought 'what better way to do that than to marry The Supreme Leader?' So here you are."];
+        "You're an up and coming actor looking for some publicity and thought 'what better way to do that than to marry The Supreme Leader?' So here you are, 21 years old and full of the urge to start drama. You hope you at least win an oscar for this.",
+        "You're a soundcloud rapper and desperately want the Supreme Leader to hear your tunes. You've tried to blast them on a speaker at the Supreme Leader's press conferences but you never really get any feedback on them. You want them to REALLY listen. Oh and you also have a knack for talking in rhymes."];
 
 
     constructor(b: string, id: string){
