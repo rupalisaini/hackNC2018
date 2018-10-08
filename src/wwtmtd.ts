@@ -84,7 +84,7 @@ async function sendBios(channel: Discord.TextChannel){
     }
 }
 
-function checkEnd (channel: Discord.TextChannel): void {
+function checkEnd (channel: Discord.TextChannel): boolean {
     let game = games.get(channel.id);
     let howManyAlive = game.howManyAlive();
 
@@ -92,19 +92,20 @@ function checkEnd (channel: Discord.TextChannel): void {
         channel.send('error: less than two players left');
 
     else if (howManyAlive == 2) {
-        let contestant: Player;
-        if (game.players[0].name == 'Contestant')
-            contestant = game.players[0];
-        else
-            contestant = game.players[1];
-
+        let contestant: Player = game.players.filter(p => p.name == 'Contestant' && p.status == Player.Status.ALIVE)[0];
         channel.send(`Congratulations, <@${contestant.id}>! You won the game and you get to marry the Supreme Leader!`);
         game.state = Game.State.SETUP;
         for (let player of game.players)
             player.status = Player.Status.ALIVE;
+        return true;
     }
 
-    else getPlayerList(channel as Discord.TextChannel).then(m => channel.send(m));
+    else {
+        getPlayerList(channel as Discord.TextChannel).then(m => channel.send(m));
+        return false;
+    }
+
+    
 }
 
 function handleCommand (input: string, message: Discord.Message, game: Game): void {
@@ -223,8 +224,11 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
                 message.channel.send('You cannot eliminate someone during the right now!');
             } else if (game.state === Game.State.ELIMINATING){
                 game.getPlayer(newID2[1]).status = Player.Status.DEAD;
-                message.channel.send("Player <@" + newID2[1] + "> has been eliminated from the game. The new round starts now:")
-                game.startRound(message.channel as Discord.TextChannel);
+                message.channel.send("Player <@" + newID2[1] + "> has been eliminated from the game.");
+                if (!checkEnd(message.channel as Discord.TextChannel)) {
+                    message.channel.send("The new round starts now:")
+                    game.startRound(message.channel as Discord.TextChannel);
+                }
             }
             break;
 

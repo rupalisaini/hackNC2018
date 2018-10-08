@@ -14,8 +14,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
+            if (f = 1, y && (t = y[op[0] & 2 ? "return" : op[0] ? "throw" : "next"]) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [0, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
                 case 4: _.label++; return { value: op[1], done: false };
@@ -55,7 +55,6 @@ exports.client.on('message', function (message) {
     // check for and handle commands
     if (exec != null)
         handleCommand(exec[1].trim(), message, game);
-    // then check for banned words
     else if (game && game.state == game_1.Game.State.PLAYING) {
         var player = game.getPlayer(message.author.id);
         if (player && player.status == player_1.Player.Status.ALIVE && player.name == 'Contestant') {
@@ -166,20 +165,19 @@ function checkEnd(channel) {
     if (howManyAlive < 2)
         channel.send('error: less than two players left');
     else if (howManyAlive == 2) {
-        var contestant = void 0;
-        if (game.players[0].name == 'Contestant')
-            contestant = game.players[0];
-        else
-            contestant = game.players[1];
+        var contestant = game.players.filter(function (p) { return p.name == 'Contestant' && p.status == player_1.Player.Status.ALIVE; })[0];
         channel.send("Congratulations, <@" + contestant.id + ">! You won the game and you get to marry the Supreme Leader!");
         game.state = game_1.Game.State.SETUP;
         for (var _i = 0, _a = game.players; _i < _a.length; _i++) {
             var player = _a[_i];
             player.status = player_1.Player.Status.ALIVE;
         }
+        return true;
     }
-    else
+    else {
         getPlayerList(channel).then(function (m) { return channel.send(m); });
+        return false;
+    }
 }
 function handleCommand(input, message, game) {
     var inputArr = input.split(' ');
@@ -270,8 +268,6 @@ function handleCommand(input, message, game) {
                 message.channel.send('The game has already started!');
             else if (!player || player.name == 'Contestant')
                 message.channel.send('Only the Supreme Leader can start the game.');
-            else if (game.players.length < 3)
-                message.channel.send('You need at least three players (one Supreme Leader and two contestants) to play.');
             else {
                 game.startRound(message.channel);
                 message.channel.send('Welcome to Who Wants to Marry the Dictator! (starting round...)');
@@ -288,8 +284,11 @@ function handleCommand(input, message, game) {
             }
             else if (game.state === game_1.Game.State.ELIMINATING) {
                 game.getPlayer(newID2[1]).status = player_1.Player.Status.DEAD;
-                message.channel.send("Player <@" + newID2[1] + "> has been eliminated from the game. The new round starts now:");
-                game.startRound(message.channel);
+                message.channel.send("Player <@" + newID2[1] + "> has been eliminated from the game.");
+                if (!checkEnd(message.channel)) {
+                    message.channel.send("The new round starts now:");
+                    game.startRound(message.channel);
+                }
             }
             break;
         case 'exit':
