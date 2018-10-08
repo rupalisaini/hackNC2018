@@ -8,13 +8,21 @@ var Game = /** @class */ (function () {
         this.players = [];
         this.exitConfirm = false;
         this.state = Game.State.SETUP;
-        this.roundCounter = 1;
+        this.roundCounter = 0;
         this.round = null;
         this.dictator = null;
+        this.channel = null;
     }
-    Game.prototype.startRound = function () {
+    Game.prototype.startRound = function (channel) {
         this.state = Game.State.PLAYING;
-        this.round = new round_1.Round();
+        this.channel = channel;
+        this.round = new round_1.Round(channel, this);
+        this.roundCounter++;
+    };
+    Game.prototype.endRound = function () {
+        this.round = null;
+        this.state = Game.State.ELIMINATING;
+        this.channel.send("The round has ended. Please submit your elimination.");
     };
     Game.prototype.banWord = function (a) {
         this.banned.push(a);
@@ -57,22 +65,12 @@ var Game = /** @class */ (function () {
     return Game;
 }());
 exports.Game = Game;
-// let a: Game = new Game();
-// a.banWord("lolx");
-// a.banWord("a");
-// console.log(a.banned);
-// console.log(a.banCheck("i'm a little bitcho"));
-// a.addPlayer(new Player("bitch", "bitch"));
-// a.addPlayer(new Player("darvin","bitcho"));
-// a.addPlayer(new Player("damn","damn"));
-// a.removePlayer("bitcho");
-// console.log(a.players[0].id);
-// console.log(a.players[1].id);
 (function (Game) {
     var State;
     (function (State) {
         State[State["SETUP"] = 0] = "SETUP";
         State[State["PLAYING"] = 1] = "PLAYING";
+        State[State["ELIMINATING"] = 2] = "ELIMINATING";
     })(State = Game.State || (Game.State = {}));
 })(Game = exports.Game || (exports.Game = {}));
 exports.Game = Game;

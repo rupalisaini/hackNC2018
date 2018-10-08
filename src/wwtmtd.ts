@@ -1,5 +1,5 @@
 import * as Discord from 'discord.js';
-const client = new Discord.Client();
+export const client = new Discord.Client();
 import * as config from './config';
 import { Game } from './game';
 import { Player } from './player';
@@ -204,9 +204,22 @@ function handleCommand (input: string, message: Discord.Message, game: Game): vo
                 message.channel.send('You need at least three players (one Supreme Leader and two contestants) to play.');
             
             else {
-                game.startRound();
+                game.startRound(message.channel as Discord.TextChannel);
                 message.channel.send('Welcome to Who Wants to Marry the Dictator! (starting round...)');
                 sendBios(message.channel as Discord.TextChannel);
+            }
+            break;
+
+        case 'eliminate':
+            let newID2: RegExpExecArray = /<@(\d*)>/.exec(arg);
+            if (player.name !== "The Supreme Leader"){
+                message.channel.send("A contestant cannot eliminate another contestant!!!!!!!");
+            } else if (game.state == Game.State.PLAYING || game.state == Game.State.SETUP){
+                message.channel.send('You cannot eliminate someone during the right now!');
+            } else if (game.state === Game.State.ELIMINATING){
+                game.getPlayer(newID2[1]).status = Player.Status.DEAD;
+                message.channel.send("Player <@" + newID2[1] + "> has been eliminated from the game. The new round starts now:")
+                game.startRound(message.channel as Discord.TextChannel);
             }
             break;
 
