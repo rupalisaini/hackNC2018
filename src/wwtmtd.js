@@ -36,17 +36,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var Discord = require("discord.js");
-var client = new Discord.Client();
+exports.client = new Discord.Client();
 var config = require("./config");
 var game_1 = require("./game");
 var player_1 = require("./player");
+var _ = require("underscore");
 var prefix = 'tator';
 var games = new Map();
-client.on('ready', function () {
-    console.log("Logged in as " + client.user.tag + "!");
+exports.client.on('ready', function () {
+    console.log("Logged in as " + exports.client.user.tag + "!");
 });
-client.on('message', function (message) {
-    if (message.author == client.user)
+exports.client.on('message', function (message) {
+    if (message.author == exports.client.user)
         return;
     var exec = new RegExp('^' + prefix + ' (.*)$').exec(message.content);
     var channel = message.channel;
@@ -84,7 +85,7 @@ function getPlayerList(channel) {
                                 case 0:
                                     if (player.status == player_1.Player.Status.DEAD)
                                         return [2 /*return*/, "continue"];
-                                    return [4 /*yield*/, client.fetchUser(player.id).then(function (u) { return user = u; })];
+                                    return [4 /*yield*/, exports.client.fetchUser(player.id).then(function (u) { return user = u; })];
                                 case 1:
                                     _a.sent();
                                     return [4 /*yield*/, channel.guild.fetchMember(user).then(function (g) { return member = g; })];
@@ -120,20 +121,25 @@ function getPlayerList(channel) {
 }
 function sendBios(channel) {
     return __awaiter(this, void 0, void 0, function () {
-        var game, _loop_2, _i, _a, player;
+        var game, numContestants, bios, _loop_2, _i, _a, player;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     game = games.get(channel.id);
+                    numContestants = game.players.length - 1;
+                    bios = _.sample(player_1.Player.bios, numContestants);
                     _loop_2 = function (player) {
-                        var user;
+                        var user_1;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
-                                case 0: return [4 /*yield*/, client.fetchUser(player.id).then(function (u) { return user = u; })];
+                                case 0:
+                                    if (!(player.name === "Contestant")) return [3 /*break*/, 2];
+                                    return [4 /*yield*/, exports.client.fetchUser(player.id).then(function (u) { return user_1 = u; })];
                                 case 1:
                                     _a.sent();
-                                    user.send(game.getPlayer(user.id).bio);
-                                    return [2 /*return*/];
+                                    user_1.send(bios.pop());
+                                    _a.label = 2;
+                                case 2: return [2 /*return*/];
                             }
                         });
                     };
@@ -224,7 +230,6 @@ function handleCommand(input, message, game) {
                 game.addPlayer(b);
                 message.channel.send("Welcome, peasant.");
                 getPlayerList(message.channel).then(function (m) { return message.channel.send(m); });
-                message.author.send("hello");
             }
             else {
                 message.channel.send("Stahp");
@@ -268,9 +273,23 @@ function handleCommand(input, message, game) {
             else if (game.players.length < 3)
                 message.channel.send('You need at least three players (one Supreme Leader and two contestants) to play.');
             else {
-                game.startRound();
+                game.startRound(message.channel);
                 message.channel.send('Welcome to Who Wants to Marry the Dictator! (starting round...)');
                 sendBios(message.channel);
+            }
+            break;
+        case 'eliminate':
+            var newID2 = /<@(\d*)>/.exec(arg);
+            if (player.name !== "The Supreme Leader") {
+                message.channel.send("A contestant cannot eliminate another contestant!!!!!!!");
+            }
+            else if (game.state == game_1.Game.State.PLAYING || game.state == game_1.Game.State.SETUP) {
+                message.channel.send('You cannot eliminate someone during the right now!');
+            }
+            else if (game.state === game_1.Game.State.ELIMINATING) {
+                game.getPlayer(newID2[1]).status = player_1.Player.Status.DEAD;
+                message.channel.send("Player <@" + newID2[1] + "> has been eliminated from the game. The new round starts now:");
+                game.startRound(message.channel);
             }
             break;
         case 'exit':
@@ -299,4 +318,4 @@ function handleCommand(input, message, game) {
     }
 }
 ;
-client.login(config.token);
+exports.client.login(config.token);
